@@ -14,6 +14,8 @@ pub use language::*;
 
 use rowan::GreenNode;
 
+type SyntaxError = String;
+
 pub struct Parse {
     pub green_node: GreenNode,
     pub errors: Vec<String>,
@@ -44,22 +46,38 @@ pub(crate) enum PrefixEntryPoint {
 
 impl Parse {
     pub fn debug_tree(&self) -> String {
-        let mut s = String::new();
+        let mut output = String::new();
 
         let tree = format!("{:#?}\n", self.syntax());
 
         // We cut off the last byte because formatting the SyntaxNode adds on a newline at the end.
-        s.push_str(&tree[0..tree.len() - 1]);
+        output.push_str(&tree[0..tree.len() - 1]);
 
         for error in &self.errors {
-            s.push_str(&format!("{}\n", error));
+            output.push_str(&format!("{}\n", error));
         }
 
-        s
+        output
     }
 
     pub fn syntax(&self) -> SyntaxNode {
         SyntaxNode::new_root(self.green_node.clone())
+    }
+
+    fn tree<T: AstNode>(&self) -> T {
+        T::cast(self.syntax()).unwrap()
+    }
+
+    fn ok<T: ast::AstNode>(self) -> Result<T, Vec<SyntaxError>> {
+        if self.errors.is_empty() {
+            Ok(self.tree())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn module(self) -> Result<nodes::Module, Vec<SyntaxError>> {
+        self.ok()
     }
 }
 
