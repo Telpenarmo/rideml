@@ -2,6 +2,7 @@ mod ast;
 mod event;
 mod generated;
 mod grammar;
+mod handwritten_ast;
 mod language;
 mod lexer;
 mod parser;

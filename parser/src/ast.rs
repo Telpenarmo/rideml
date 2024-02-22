@@ -76,6 +76,7 @@ pub mod support {
     pub fn child<N: AstNode>(parent: &SyntaxNode) -> Option<N> {
         parent.children().find_map(N::cast)
     }
+
     pub fn token_child<N: AstToken>(parent: &SyntaxNode) -> Option<N> {
         parent.children_with_tokens().find_map(|n| match n {
             rowan::NodeOrToken::Node(_) => None,

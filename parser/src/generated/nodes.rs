@@ -23,23 +23,23 @@ pub struct LetDecl {
     pub(crate) syntax: SyntaxNode,
 }
 impl LetDecl {
+    pub fn params(&self) -> Option<Params> {
+        support::child(&self.syntax)
+    }
     pub fn let_kw_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, LET_KW)
     }
     pub fn ident_lit(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, IDENT)
     }
-    pub fn params(&self) -> Option<Params> {
-        support::child(&self.syntax)
-    }
     pub fn equal_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, EQUAL)
     }
-    pub fn expr(&self) -> Option<Expr> {
-        support::child(&self.syntax)
-    }
     pub fn semicolon_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, SEMICOLON)
+    }
+    pub fn expr(&self) -> Option<Expr> {
+        support::child(&self.syntax)
     }
 }
 
@@ -73,11 +73,11 @@ impl TypeDecl {
     pub fn equal_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, EQUAL)
     }
-    pub fn type_expr(&self) -> Option<TypeExpr> {
-        support::child(&self.syntax)
-    }
     pub fn semicolon_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, SEMICOLON)
+    }
+    pub fn type_expr(&self) -> Option<TypeExpr> {
+        support::child(&self.syntax)
     }
 }
 
@@ -106,14 +106,14 @@ pub struct TypeArrow {
     pub(crate) syntax: SyntaxNode,
 }
 impl TypeArrow {
-    pub fn from(&self) -> Option<TypeExpr> {
-        support::child(&self.syntax)
-    }
     pub fn arrow_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, ARROW)
     }
+    pub fn from(&self) -> Option<TypeExpr> {
+        crate::handwritten_ast::type_arrow_from(&self.syntax)
+    }
     pub fn to(&self) -> Option<TypeExpr> {
-        support::child(&self.syntax)
+        crate::handwritten_ast::type_arrow_to(&self.syntax)
     }
 }
 
@@ -122,11 +122,11 @@ pub struct TypeParen {
     pub(crate) syntax: SyntaxNode,
 }
 impl TypeParen {
-    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, L_PAREN)
-    }
     pub fn type_expr(&self) -> Option<TypeExpr> {
         support::child(&self.syntax)
+    }
+    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, L_PAREN)
     }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, R_PAREN)
@@ -159,10 +159,10 @@ pub struct AppExpr {
 }
 impl AppExpr {
     pub fn func(&self) -> Option<Expr> {
-        support::child(&self.syntax)
+        crate::handwritten_ast::app_expr_func(&self.syntax)
     }
     pub fn arg(&self) -> Option<Expr> {
-        support::child(&self.syntax)
+        crate::handwritten_ast::app_expr_arg(&self.syntax)
     }
 }
 
@@ -171,11 +171,11 @@ pub struct LambdaExpr {
     pub(crate) syntax: SyntaxNode,
 }
 impl LambdaExpr {
-    pub fn lambda_lit(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, LAMBDA)
-    }
     pub fn params(&self) -> Option<Params> {
         support::child(&self.syntax)
+    }
+    pub fn lambda_lit(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, LAMBDA)
     }
     pub fn arrow_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, ARROW)
@@ -196,20 +196,20 @@ impl LetExpr {
     pub fn ident_lit(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, IDENT)
     }
-    pub fn params(&self) -> Option<Params> {
-        support::child(&self.syntax)
-    }
     pub fn equal_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, EQUAL)
-    }
-    pub fn def(&self) -> Option<Expr> {
-        support::child(&self.syntax)
     }
     pub fn in_kw_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, IN_KW)
     }
-    pub fn body(&self) -> Option<Expr> {
+    pub fn params(&self) -> Option<Params> {
         support::child(&self.syntax)
+    }
+    pub fn def(&self) -> Option<Expr> {
+        crate::handwritten_ast::let_expr_def(&self.syntax)
+    }
+    pub fn body(&self) -> Option<Expr> {
+        crate::handwritten_ast::let_expr_body(&self.syntax)
     }
 }
 
@@ -218,11 +218,11 @@ pub struct ParenExpr {
     pub(crate) syntax: SyntaxNode,
 }
 impl ParenExpr {
-    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
-        support::token(&self.syntax, L_PAREN)
-    }
     pub fn expr(&self) -> Option<Expr> {
         support::child(&self.syntax)
+    }
+    pub fn l_paren_token(&self) -> Option<SyntaxToken> {
+        support::token(&self.syntax, L_PAREN)
     }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, R_PAREN)
@@ -235,13 +235,13 @@ pub struct BinaryExpr {
 }
 impl BinaryExpr {
     pub fn lhs(&self) -> Option<Expr> {
-        support::child(&self.syntax)
+        crate::handwritten_ast::binary_expr_lhs(&self.syntax)
+    }
+    pub fn rhs(&self) -> Option<Expr> {
+        crate::handwritten_ast::binary_expr_rhs(&self.syntax)
     }
     pub fn infix_symbol(&self) -> Option<InfixSymbol> {
         support::token_child(&self.syntax)
-    }
-    pub fn rhs(&self) -> Option<Expr> {
-        support::child(&self.syntax)
     }
 }
 
@@ -259,11 +259,11 @@ impl Param {
     pub fn colon_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, COLON)
     }
-    pub fn type_expr(&self) -> Option<TypeExpr> {
-        support::child(&self.syntax)
-    }
     pub fn r_paren_token(&self) -> Option<SyntaxToken> {
         support::token(&self.syntax, R_PAREN)
+    }
+    pub fn type_expr(&self) -> Option<TypeExpr> {
+        support::child(&self.syntax)
     }
 }
 

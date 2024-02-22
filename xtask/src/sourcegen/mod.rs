@@ -1,12 +1,15 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, path::PathBuf};
 
 use anyhow::Result;
 use ast::{lower, AstSrc};
 use itertools::Itertools;
 use kinds::{KindsSrc, TokenKind};
+use proc_macro2::TokenStream;
 use quote::{format_ident, quote};
 use ungrammar::Grammar;
-use util::{ensure_file_contents, reformat, to_pascal_case, to_upper_snake_case};
+use util::{
+    ensure_file_contents, reformat, to_lower_snake_case, to_pascal_case, to_upper_snake_case,
+};
 
 mod ast;
 mod kinds;
@@ -143,6 +146,91 @@ fn generate_syntax_kinds(kinds: &KindsSrc, grammar: &AstSrc) -> Result<String> {
     reformat(&ast.to_string())
 }
 
+fn get_method_parts(
+    only_of_type: bool,
+    field: &ast::Field,
+    kinds: &KindsSrc,
+    grammar: &AstSrc,
+) -> (TokenStream, Option<TokenStream>) {
+    let ty = field.ty();
+
+    if field.is_many() {
+        (
+            quote!(AstChildren<#ty>),
+            only_of_type.then_some(quote!(support::children(&self.syntax))),
+        )
+    } else if let Some(token_kind) = field.token_kind(kinds) {
+        (
+            quote!(Option<#ty>),
+            Some(quote!(
+                support::token(&self.syntax, #token_kind)
+            )),
+        )
+    } else if field.is_token_enum(grammar) {
+        (
+            quote!(Option<#ty>),
+            only_of_type.then_some(quote!(support::token_child(&self.syntax))),
+        )
+    } else {
+        (
+            quote!(Option<#ty>),
+            only_of_type.then_some(quote!(support::child(&self.syntax))),
+        )
+    }
+}
+
+/*
+What AST accessors does this generate?
+
+For each node:
+
+1. Group all its fields by their type,
+2.a. If there is only one field of a type, as it most likely is,
+    generate a method that returns first (hopefully the only) child of that type.
+2.b otherwise, we deem the case too complex and fall back to a handwritten implementation,
+    which is expected to live in `handwritten_ast` module in target crate.
+ */
+
+fn generate_field_method(
+    only: bool,
+    field: &ast::Field,
+    kinds: &KindsSrc,
+    grammar: &AstSrc,
+    node_name: &str,
+) -> TokenStream {
+    let (result, method_body) = get_method_parts(only, field, kinds, grammar);
+    let method_name = format_ident!("{}", field.method_name(kinds));
+
+    let method_body = if let Some(body) = method_body {
+        body
+    } else {
+        let name = format_ident!("{}_{}", node_name, method_name);
+        quote!(crate::handwritten_ast::#name(&self.syntax))
+    };
+
+    quote! {
+        pub fn #method_name(&self) -> #result {
+            #method_body
+        }
+    }
+}
+
+enum OneOrMany<'a, T> {
+    Single(&'a T),
+    Multiple(Vec<&'a T>),
+}
+
+impl<'a, T> OneOrMany<'a, T> {
+    fn push_field(&mut self, field: &'a T) {
+        match self {
+            OneOrMany::Single(prev_field) => {
+                *self = OneOrMany::Multiple(vec![prev_field, field]);
+            }
+            OneOrMany::Multiple(fields) => fields.push(field),
+        };
+    }
+}
+
 fn generate_nodes(kinds: &KindsSrc, grammar: &AstSrc) -> Result<String> {
     let (node_defs, node_boilerplate_impls): (Vec<_>, Vec<_>) = grammar
         .nodes
@@ -155,36 +243,32 @@ fn generate_nodes(kinds: &KindsSrc, grammar: &AstSrc) -> Result<String> {
                 quote!(impl ast::#trait_name for #name {})
             });
 
-            let methods = node.fields.iter().map(|field| {
-                let method_name = field.method_name(kinds);
-                let ty = field.ty();
+            let mut fields_by_type: HashMap<_, OneOrMany<ast::Field>> = HashMap::new();
+            for field in &node.fields {
+                fields_by_type
+                    .entry(field.ty())
+                    .and_modify(|v| v.push_field(field))
+                    .or_insert(OneOrMany::Single(field));
+            }
 
-                if field.is_many() {
-                    quote! {
-                        pub fn #method_name(&self) -> AstChildren<#ty> {
-                            support::children(&self.syntax)
-                        }
+            let mut methods: Vec<TokenStream> = Vec::new();
+            let node_name = to_lower_snake_case(&node.name);
+
+            for one_or_many in fields_by_type.values() {
+                match one_or_many {
+                    OneOrMany::Single(field) => {
+                        methods.push(generate_field_method(
+                            true, field, kinds, grammar, &node_name,
+                        ));
                     }
-                } else if let Some(token_kind) = field.token_kind(kinds) {
-                    quote! {
-                        pub fn #method_name(&self) -> Option<#ty> {
-                            support::token(&self.syntax, #token_kind)
-                        }
-                    }
-                } else if field.is_token_enum(grammar) {
-                    quote! {
-                        pub fn #method_name(&self) -> Option<#ty> {
-                            support::token_child(&self.syntax)
-                        }
-                    }
-                } else {
-                    quote! {
-                        pub fn #method_name(&self) -> Option<#ty> {
-                            support::child(&self.syntax)
-                        }
+                    OneOrMany::Multiple(fields) => {
+                        methods.extend(&mut fields.iter().map(|field| {
+                            generate_field_method(false, field, kinds, grammar, &node_name)
+                        }));
                     }
                 }
-            });
+            }
+
             (
                 quote! {
                     #[pretty_doc_comment_placeholder_workaround]
