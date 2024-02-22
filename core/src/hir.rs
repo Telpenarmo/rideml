@@ -5,21 +5,24 @@ pub(crate) type TypeExprIdx = Idx<TypeExpr>;
 
 #[allow(unused)]
 pub struct Module {
-    declarations: Box<[Declaration]>,
+    pub declarations: Box<[Declaration]>,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct LetDecl {
     pub name: String,
     pub params: Box<[Param]>,
     pub defn: Box<Expr>,
 }
 
+#[derive(PartialEq, Debug)]
 pub enum Declaration {
     TypeDecl { name: String, defn: Box<TypeExpr> },
     LetDecl(Box<LetDecl>),
     OpenDecl { path: String },
 }
 
+#[derive(PartialEq, Debug)]
 pub enum Expr {
     Missing,
     LetExpr(Box<LetExpr>),
@@ -30,6 +33,7 @@ pub enum Expr {
 }
 
 #[allow(unused)]
+#[derive(PartialEq, Debug)]
 pub struct LetExpr {
     pub name: String,
     pub params: Box<[Param]>,
@@ -37,12 +41,14 @@ pub struct LetExpr {
     pub body: ExprIdx,
 }
 
+#[derive(PartialEq, Debug)]
 pub enum TypeExpr {
     Missing,
     IdentTypeExpr { name: String },
     TypeArrow { from: TypeExprIdx, to: TypeExprIdx },
 }
 
+#[derive(PartialEq, Debug)]
 pub enum Literal {
     IntLiteral(i64),
     BoolLiteral(bool),
@@ -50,6 +56,7 @@ pub enum Literal {
 }
 
 #[allow(unused)]
+#[derive(PartialEq, Debug)]
 pub struct Param {
     pub(crate) name: String,
     pub(crate) typ: Option<TypeExprIdx>,
