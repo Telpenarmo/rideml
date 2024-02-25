@@ -38,6 +38,10 @@ pub(crate) fn let_expr_def(parent: &rowan::SyntaxNode<crate::RideMLLanguage>) ->
             rowan::NodeOrToken::Node(_) => false,
             rowan::NodeOrToken::Token(t) => t.kind() != crate::SyntaxKind::LET_KW,
         })
+        .take_while(|child| match child {
+            rowan::NodeOrToken::Node(_) => true,
+            rowan::NodeOrToken::Token(t) => t.kind() != crate::SyntaxKind::IN_KW,
+        })
         .find_map(|child| match child {
             rowan::NodeOrToken::Node(n) => Expr::cast(n),
             rowan::NodeOrToken::Token(_) => None,
