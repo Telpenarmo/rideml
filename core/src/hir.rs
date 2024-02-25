@@ -2,22 +2,23 @@ use la_arena::Idx;
 
 pub(crate) type ExprIdx = Idx<Expr>;
 pub(crate) type TypeExprIdx = Idx<TypeExpr>;
+pub(crate) type DeclarationIdx = Idx<Declaration>;
 
 #[allow(unused)]
 pub struct Module {
-    pub declarations: Box<[Declaration]>,
+    pub declarations: Box<[DeclarationIdx]>,
 }
 
 #[derive(PartialEq, Debug)]
 pub struct LetDecl {
     pub name: String,
     pub params: Box<[Param]>,
-    pub defn: Box<Expr>,
+    pub defn: ExprIdx,
 }
 
 #[derive(PartialEq, Debug)]
 pub enum Declaration {
-    TypeDecl { name: String, defn: Box<TypeExpr> },
+    TypeDecl { name: String, defn: TypeExprIdx },
     LetDecl(Box<LetDecl>),
     OpenDecl { path: String },
 }
