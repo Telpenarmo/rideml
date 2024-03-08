@@ -4,9 +4,9 @@ use parser::{nodes as ast, AstToken};
 
 #[allow(unused)]
 pub struct Database {
-    declarations: Arena<Declaration>,
-    expressions: Arena<Expr>,
-    type_expressions: Arena<TypeExpr>,
+    pub declarations: Arena<Declaration>,
+    pub expressions: Arena<Expr>,
+    pub type_expressions: Arena<TypeExpr>,
 }
 
 #[allow(unreachable_code, unused)]
