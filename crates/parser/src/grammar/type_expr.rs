@@ -1,30 +1,31 @@
 use crate::{
+    event::ErrorPlacement,
     parser::{CompletedMarker, Parser},
     SyntaxKind,
 };
 
 pub(crate) fn type_expr(parser: &mut Parser) {
-    fn lhs(parser: &mut Parser) -> CompletedMarker {
+    fn lhs(parser: &mut Parser) -> Option<CompletedMarker> {
         if parser.at(SyntaxKind::IDENT) {
             let mark = parser.open();
             parser.advance();
-            parser.close(mark, SyntaxKind::TYPE_IDENT)
+            Some(parser.close(mark, SyntaxKind::TYPE_IDENT))
         } else if parser.at(SyntaxKind::L_PAREN) {
             let mark = parser.open();
             parser.advance();
             type_expr(parser);
             parser.expect(SyntaxKind::R_PAREN);
-            parser.close(mark, SyntaxKind::TYPE_PAREN)
+            Some(parser.close(mark, SyntaxKind::TYPE_PAREN))
         } else {
-            parser.unexpected();
-
-            let marker = parser.open();
-            parser.advance();
-            parser.close(marker, SyntaxKind::ERROR)
+            parser.error(
+                "Expected type expression".into(),
+                ErrorPlacement::PrevTokenEnd,
+            );
+            None
         }
     }
 
-    let lhs_mark = lhs(parser);
+    let Some(lhs_mark) = lhs(parser) else { return };
 
     if parser.eat(SyntaxKind::ARROW) {
         let marker = parser.open_before(lhs_mark);

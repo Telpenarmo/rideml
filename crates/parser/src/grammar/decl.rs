@@ -19,7 +19,6 @@ pub(crate) fn decl(parser: &mut Parser) {
                 break;
             }
             parser.unexpected();
-            parser.advance();
         }
     }
 
