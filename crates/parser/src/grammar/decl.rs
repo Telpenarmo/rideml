@@ -1,27 +1,15 @@
 use crate::{
     grammar::{expr, params, type_expr},
-    parser::Parser,
+    parser::{Parser, TokenSet},
     SyntaxKind,
 };
 
-pub(crate) fn decl(parser: &mut Parser) {
-    fn eat_error(parser: &mut Parser) {
-        loop {
-            if parser.at(SyntaxKind::EOF)
-                || parser.at(SyntaxKind::DEF_KW)
-                || parser.at(SyntaxKind::TYPE_KW)
-                || parser.at(SyntaxKind::OPEN_KW)
-            {
-                break;
-            }
-            if parser.at(SyntaxKind::SEMICOLON) {
-                parser.advance();
-                break;
-            }
-            parser.unexpected();
-        }
-    }
+pub(crate) const DECL_START: [SyntaxKind; 3] =
+    [SyntaxKind::DEF_KW, SyntaxKind::TYPE_KW, SyntaxKind::OPEN_KW];
 
+pub(crate) fn decl(parser: &mut Parser) {
+    let decl_start = TokenSet::new(&DECL_START);
+    let decl_end = TokenSet::new(&[SyntaxKind::SEMICOLON]);
     if parser.at(SyntaxKind::DEF_KW) {
         def_decl(parser);
     } else if parser.at(SyntaxKind::TYPE_KW) {
@@ -29,7 +17,10 @@ pub(crate) fn decl(parser: &mut Parser) {
     } else if parser.at(SyntaxKind::OPEN_KW) {
         open_decl(parser);
     } else {
-        eat_error(parser);
+        parser.eat_error_until(decl_start.union(decl_end));
+        if parser.at_any(decl_end) {
+            assert!(parser.eat(SyntaxKind::SEMICOLON));
+        }
     }
 }
 

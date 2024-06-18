@@ -67,6 +67,11 @@ impl<'t, 'input> Parser<'t, 'input> {
         self.current() == kind
     }
 
+    /// Check if the current token is any of the given kinds
+    pub(crate) fn at_any(&mut self, kinds: TokenSet) -> bool {
+        kinds.contains(self.current())
+    }
+
     /// Get the current token, ignoring trivia
     fn current(&mut self) -> SyntaxKind {
         self.source.current()
@@ -109,6 +114,18 @@ impl<'t, 'input> Parser<'t, 'input> {
         self.error(msg, ErrorPlacement::NextToken);
         self.advance();
     }
+
+    pub(crate) fn eat_error_until(&mut self, delimiters: TokenSet) -> CompletedMarker {
+        let marker = self.open();
+        let delimiters = delimiters.union(TokenSet::new(&[SyntaxKind::EOF]));
+        loop {
+            if delimiters.contains(self.current()) {
+                break;
+            }
+            self.unexpected();
+        }
+        self.close(marker, SyntaxKind::ERROR)
+    }
 }
 
 #[must_use]
@@ -146,6 +163,27 @@ pub(crate) struct CompletedMarker {
     pub(crate) pos: usize,
 }
 
+#[derive(Clone, Copy)]
+pub(crate) struct TokenSet([u64; 1]);
+
+impl TokenSet {
+    pub(crate) fn new(tokens: &[SyntaxKind]) -> Self {
+        let mut set = Self([0; 1]);
+        for &token in tokens {
+            set.0[0] |= 1 << token as u64;
+        }
+        set
+    }
+
+    pub(crate) fn union(self, other: Self) -> Self {
+        TokenSet([self.0[0] | other.0[0]])
+    }
+
+    pub(crate) fn contains(self, kind: SyntaxKind) -> bool {
+        (self.0[0] & (1 << kind as u64)) != 0
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::check;
@@ -172,5 +210,26 @@ mod tests {
                   WHITESPACE@0..3 "   "
             "#]],
         );
+    }
+
+    #[test]
+    fn token_set() {
+        let set = &super::TokenSet::new(&[super::SyntaxKind::EOF]);
+        assert!(set.contains(super::SyntaxKind::EOF));
+        assert!(!set.contains(super::SyntaxKind::IDENT));
+
+        let set = &super::TokenSet::new(&[super::SyntaxKind::EOF, super::SyntaxKind::IDENT]);
+        assert!(set.contains(super::SyntaxKind::EOF));
+        assert!(set.contains(super::SyntaxKind::IDENT));
+        assert!(!set.contains(super::SyntaxKind::COLON));
+    }
+
+    #[test]
+    fn token_set_union() {
+        let set = super::TokenSet::new(&[super::SyntaxKind::EOF])
+            .union(super::TokenSet::new(&[super::SyntaxKind::IDENT]));
+        assert!(set.contains(super::SyntaxKind::EOF));
+        assert!(set.contains(super::SyntaxKind::IDENT));
+        assert!(!set.contains(super::SyntaxKind::ARROW));
     }
 }
