@@ -1,11 +1,20 @@
 use crate::{
     event::ErrorPlacement,
-    parser::{CompletedMarker, Parser},
+    grammar::decl,
+    parser::{CompletedMarker, Parser, TokenSet},
     SyntaxKind,
 };
 
+pub(crate) const TYPE_EXPR_FOLLOW: [SyntaxKind; 3] = [
+    SyntaxKind::ARROW,
+    SyntaxKind::R_PAREN,
+    SyntaxKind::SEMICOLON,
+];
+
 pub(crate) fn type_expr(parser: &mut Parser) {
     fn lhs(parser: &mut Parser) -> Option<CompletedMarker> {
+        let type_expr_follow = TokenSet::new(&TYPE_EXPR_FOLLOW);
+        let decl_start = TokenSet::new(&decl::DECL_START);
         if parser.at(SyntaxKind::IDENT) {
             let mark = parser.open();
             parser.advance();
@@ -21,6 +30,7 @@ pub(crate) fn type_expr(parser: &mut Parser) {
                 "Expected type expression".into(),
                 ErrorPlacement::PrevTokenEnd,
             );
+            parser.eat_error_until(type_expr_follow.union(decl_start));
             None
         }
     }
@@ -36,7 +46,7 @@ pub(crate) fn type_expr(parser: &mut Parser) {
 
 #[cfg(test)]
 mod tests {
-    use crate::{check, PrefixEntryPoint};
+    use crate::{check, check_err, PrefixEntryPoint};
     use expect_test::expect;
 
     #[test]
@@ -132,6 +142,23 @@ mod tests {
                   TYPE_IDENT@12..13
                     IDENT@12..13 "c"
             "#]],
+        );
+    }
+
+    #[test]
+    fn parse_type_arrow_wthout_rhs() {
+        check_err(
+            PrefixEntryPoint::TypeExpr,
+            "a ->",
+            &expect![[r#"
+            TYPE_ARROW@0..4
+              TYPE_IDENT@0..2
+                IDENT@0..1 "a"
+                WHITESPACE@1..2 " "
+              ARROW@2..4 "->"
+              ERROR@4..4
+            "#]],
+            &["Expected type expression"],
         );
     }
 }

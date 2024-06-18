@@ -1,0 +1,22 @@
+type Y = 5 f let;
+def fib n =
+    let fibRec pprev prev n =
+        if (eq n 0) pprev (
+            let new = add pprev prev in
+            let n = sub n 1 in
+            fibRec prev new n
+        )
+    in fibRec 0 1 n;
+
+
+def test =
+    let x = assert (eq (fib 0) 0) in
+    let () = assert (eq (fib 1) 1) in
+    let x = assert (eq (fib 2) 1) in
+    let x = assert (eq (fib 3) 2) in
+    let x = assert (eq (fib 6) 8) in
+    ();
+
+def test {
+    assert 5 = 
+}
