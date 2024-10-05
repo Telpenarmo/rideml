@@ -63,7 +63,7 @@ mod tests {
     fn def_block_directly() {
         check_file(
             "def x { 0 }",
-            &expect_file!["../../test_data/def_block_directly.rml_cst"],
+            &expect_file!["../../test_data/def_block_directly.cml_cst"],
         );
     }
 
@@ -84,7 +84,7 @@ mod tests {
     fn def_block_as_expr() {
         check_file(
             r"def x = { 0 };",
-            &expect_file!["../../test_data/def_block_as_expr.rml_cst"],
+            &expect_file!["../../test_data/def_block_as_expr.cml_cst"],
         );
     }
 
@@ -140,7 +140,7 @@ mod tests {
     fn block_with_let_stmt_and_trailing_expr() {
         check_file(
             r"def x { let x = 42; 42 }",
-            &expect_file!["../../test_data/block_with_let_stmt_and_trailing_expr.rml_cst"],
+            &expect_file!["../../test_data/block_with_let_stmt_and_trailing_expr.cml_cst"],
         );
     }
 
@@ -148,7 +148,7 @@ mod tests {
     fn block_with_let_stmt_and_expr_stmt() {
         check_file(
             r"def x { let x = 42; x; }",
-            &expect_file!["../../test_data/block_with_let_stmt_and_expr_stmt.rml_cst"],
+            &expect_file!["../../test_data/block_with_let_stmt_and_expr_stmt.cml_cst"],
         );
     }
 

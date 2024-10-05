@@ -91,7 +91,7 @@ pub(crate) struct SyntaxTreeParams {
 impl lsp_types::request::Request for SyntaxTree {
     type Params = SyntaxTreeParams;
     type Result = String;
-    const METHOD: &'static str = "rideml-analyzer/syntaxTree";
+    const METHOD: &'static str = "camlot-analyzer/syntaxTree";
 }
 
 pub(crate) fn handle_syntax_tree_request(

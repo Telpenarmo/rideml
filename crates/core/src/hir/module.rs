@@ -129,7 +129,6 @@ impl Default for Module {
 impl Module {
     #[must_use]
     pub fn new() -> Self {
-
         Self {
             expressions: Arena::new(),
             type_expressions: Arena::new(),

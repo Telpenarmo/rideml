@@ -1,6 +1,6 @@
 {
-  "name": "rideml-analyzer",
-  "displayName": "rideml-analyzer",
+  "name": "camlot-analyzer",
+  "displayName": "camlot-analyzer",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -13,28 +13,28 @@
   "main": "./out/extension.js",
   "author": "Telpenarmo",
   "publisher": "Telpenarmo",
-  "repository": "https://github.com/Telpenarmo/rideml",
+  "repository": "https://github.com/Telpenarmo/camlot",
   "contributes": {
     "languages": [
       {
-        "id": "rideml",
+        "id": "camlot",
         "extensions": [
-          ".rml",
-          ".rmli"
+          ".cml",
+          ".cmli"
         ],
         "configuration": "./language-configuration.json"
       }
     ],
     "commands": [
       {
-        "command": "rideml-analyzer.syntaxTree",
+        "command": "camlot-analyzer.syntaxTree",
         "title": "Show Syntax Tree",
-        "category": "RideML"
+        "category": "Camlot"
       },
       {
-        "command": "rideml-analyzer.restartServer",
+        "command": "camlot-analyzer.restartServer",
         "title": "Restart Server",
-        "category": "RideML"
+        "category": "Camlot"
       }
     ]
   },
@@ -46,7 +46,7 @@
     "pretest": "pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
-    "package": "vsce package --no-dependencies --skip-license -o out/rideml-analyzer.vsix"
+    "package": "vsce package --no-dependencies --skip-license -o out/camlot-analyzer.vsix"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",

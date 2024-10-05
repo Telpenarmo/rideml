@@ -1,4 +1,4 @@
-# Rideml-Analyzer VSCode Extension
+# Camlot-Analyzer VSCode Extension
 
 ## Features
 
@@ -8,4 +8,4 @@
 
 ## Requirements
 
-This extension assumes that rideml-analyzer is installed and available in the $PATH.
+This extension assumes that camlot-analyzer is installed and available in the $PATH.

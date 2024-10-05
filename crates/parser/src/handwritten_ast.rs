@@ -4,22 +4,22 @@ use crate::{
     AstNode,
 };
 
-pub(crate) fn app_expr_func(parent: &rowan::SyntaxNode<crate::RideMLLanguage>) -> Option<Expr> {
+pub(crate) fn app_expr_func(parent: &rowan::SyntaxNode<crate::CamlotLanguage>) -> Option<Expr> {
     support::child(parent)
 }
 
-pub(crate) fn app_expr_arg(parent: &rowan::SyntaxNode<crate::RideMLLanguage>) -> Option<Expr> {
+pub(crate) fn app_expr_arg(parent: &rowan::SyntaxNode<crate::CamlotLanguage>) -> Option<Expr> {
     parent.children().skip(1).find_map(Expr::cast)
 }
 
 pub(crate) fn type_arrow_from(
-    parent: &rowan::SyntaxNode<crate::RideMLLanguage>,
+    parent: &rowan::SyntaxNode<crate::CamlotLanguage>,
 ) -> Option<crate::nodes::TypeExpr> {
     support::child(parent)
 }
 
 pub(crate) fn type_arrow_to(
-    parent: &rowan::SyntaxNode<crate::RideMLLanguage>,
+    parent: &rowan::SyntaxNode<crate::CamlotLanguage>,
 ) -> Option<crate::nodes::TypeExpr> {
     parent
         .children_with_tokens()
@@ -31,11 +31,11 @@ pub(crate) fn type_arrow_to(
         })
 }
 
-pub(crate) fn binary_expr_lhs(parent: &rowan::SyntaxNode<crate::RideMLLanguage>) -> Option<Expr> {
+pub(crate) fn binary_expr_lhs(parent: &rowan::SyntaxNode<crate::CamlotLanguage>) -> Option<Expr> {
     support::child(parent)
 }
 
-pub(crate) fn binary_expr_rhs(parent: &rowan::SyntaxNode<crate::RideMLLanguage>) -> Option<Expr> {
+pub(crate) fn binary_expr_rhs(parent: &rowan::SyntaxNode<crate::CamlotLanguage>) -> Option<Expr> {
     parent
         .children_with_tokens()
         .skip_while(|child| match child {

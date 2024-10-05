@@ -3,8 +3,8 @@ use rowan::Language;
 use crate::generated::syntax_kinds::SyntaxKind;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub enum RideMLLanguage {}
-impl Language for RideMLLanguage {
+pub enum CamlotLanguage {}
+impl Language for CamlotLanguage {
     type Kind = SyntaxKind;
 
     fn kind_from_raw(raw: rowan::SyntaxKind) -> SyntaxKind {
@@ -16,9 +16,9 @@ impl Language for RideMLLanguage {
     }
 }
 
-pub type SyntaxNode = rowan::SyntaxNode<RideMLLanguage>;
-pub type SyntaxToken = rowan::SyntaxToken<RideMLLanguage>;
-pub type SyntaxElement = rowan::SyntaxElement<RideMLLanguage>;
-pub type SyntaxNodeChildren = rowan::SyntaxNodeChildren<RideMLLanguage>;
-pub type SyntaxElementChildren = rowan::SyntaxElementChildren<RideMLLanguage>;
-pub type PreorderWithTokens = rowan::api::PreorderWithTokens<RideMLLanguage>;
+pub type SyntaxNode = rowan::SyntaxNode<CamlotLanguage>;
+pub type SyntaxToken = rowan::SyntaxToken<CamlotLanguage>;
+pub type SyntaxElement = rowan::SyntaxElement<CamlotLanguage>;
+pub type SyntaxNodeChildren = rowan::SyntaxNodeChildren<CamlotLanguage>;
+pub type SyntaxElementChildren = rowan::SyntaxElementChildren<CamlotLanguage>;
+pub type PreorderWithTokens = rowan::api::PreorderWithTokens<CamlotLanguage>;

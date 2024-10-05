@@ -15,17 +15,17 @@ let commands: vscode.Disposable[] = [];
 
 async function initLanguageClient() {
 	const serverOptions: ServerOptions = {
-		command: "rideml-server",
+		command: "camlot-server",
 		args: ["lsp"],
 	};
 	const clientOptions: LanguageClientOptions = {
-		documentSelector: [{ scheme: "file", language: "rideml" }],
+		documentSelector: [{ scheme: "file", language: "camlot" }],
 		synchronize: {
 			fileEvents: vscode.workspace.createFileSystemWatcher("**/*.{rml,rmli}"),
 		},
 	};
 
-	return new LanguageClient("rideml-lsp", "Rideml Language Server", serverOptions, clientOptions);
+	return new LanguageClient("camlot-lsp", "Camlot Language Server", serverOptions, clientOptions);
 }
 
 // This method is called when your extension is activated
@@ -45,8 +45,8 @@ export async function activate(context: vscode.ExtensionContext) {
 				},
 			};
 			// register syntax tree command
-			commands.push(vscode.commands.registerCommand('rideml-analyzer.syntaxTree', syntaxTree(ctx)));
-			commands.push(vscode.commands.registerCommand('rideml-analyzer.restartServer', restart(ctx)));
+			commands.push(vscode.commands.registerCommand('camlot-analyzer.syntaxTree', syntaxTree(ctx)));
+			commands.push(vscode.commands.registerCommand('camlot-analyzer.restartServer', restart(ctx)));
 		} catch (err: any) {
 			vscode.window.showErrorMessage(err);
 		}

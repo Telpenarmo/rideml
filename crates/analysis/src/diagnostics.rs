@@ -37,6 +37,6 @@ fn syntax_error_to_diagnostic(
     let range = lsp_types::Range::new(start, end);
 
     let mut diagnostic = lsp_types::Diagnostic::new_simple(range, message.to_string());
-    diagnostic.source = Some("RideML".into());
+    diagnostic.source = Some("Camlot".into());
     diagnostic
 }

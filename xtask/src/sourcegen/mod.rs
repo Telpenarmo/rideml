@@ -18,7 +18,7 @@ mod util;
 pub(crate) fn generate_ungrammar() -> Result<()> {
     let grammar: Grammar = include_str!(concat!(
         env!("CARGO_MANIFEST_DIR"),
-        "/../crates/parser/rideml.ungram"
+        "/../crates/parser/camlot.ungram"
     ))
     .parse()?;
 

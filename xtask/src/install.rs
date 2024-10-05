@@ -35,7 +35,7 @@ fn install_client(sh: &Shell, vscode_path: &OsStr) -> Result<()> {
 
     cmd!(
         sh,
-        "{vscode_path} --install-extension out/rideml-analyzer.vsix"
+        "{vscode_path} --install-extension out/camlot-analyzer.vsix"
     )
     .run()?;
 

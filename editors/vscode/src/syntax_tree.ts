@@ -10,7 +10,7 @@ export function syntaxTree(ctx: Ctx) {
 
     ctx.pushCleanup(
         vscode.workspace.registerTextDocumentContentProvider(
-            'rideml-analyzer',
+            'camlot-analyzer',
             stcp,
         ),
     );
@@ -18,7 +18,7 @@ export function syntaxTree(ctx: Ctx) {
     vscode.workspace.onDidChangeTextDocument(
         (event: vscode.TextDocumentChangeEvent) => {
             const doc = event.document;
-            if (doc.languageId !== 'rideml') {
+            if (doc.languageId !== 'camlot') {
                 return;
             };
             afterLs(() => stcp.eventEmitter.fire(stcp.uri));
@@ -28,7 +28,7 @@ export function syntaxTree(ctx: Ctx) {
 
     vscode.window.onDidChangeActiveTextEditor(
         (editor: vscode.TextEditor | undefined) => {
-            if (!editor || editor.document.languageId !== 'rideml') {
+            if (!editor || editor.document.languageId !== 'camlot') {
                 return;
             }
             stcp.eventEmitter.fire(stcp.uri);
@@ -70,7 +70,7 @@ interface SyntaxTreeParams {
 export class SyntaxTreeContentProvider
     implements vscode.TextDocumentContentProvider {
     ctx: Ctx;
-    uri = vscode.Uri.parse('rideml-analyzer://syntaxtree');
+    uri = vscode.Uri.parse('camlot-analyzer://syntaxtree');
     eventEmitter = new vscode.EventEmitter<vscode.Uri>();
     syntaxTree: string = 'Not available';
 
@@ -100,7 +100,7 @@ export class SyntaxTreeContentProvider
             range,
         };
         return this.ctx.client.sendRequest<string>(
-            'rideml-analyzer/syntaxTree',
+            'camlot-analyzer/syntaxTree',
             request,
         );
     }

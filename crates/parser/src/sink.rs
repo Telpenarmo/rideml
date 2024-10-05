@@ -2,7 +2,7 @@ use rowan::{GreenNodeBuilder, Language};
 use std::mem;
 
 use crate::source::Token;
-use crate::{event::Event, RideMLLanguage};
+use crate::{event::Event, CamlotLanguage};
 use crate::{Parse, SyntaxError, SyntaxKind};
 
 pub(crate) struct Sink<'t, 'input> {
@@ -81,7 +81,7 @@ impl<'t, 'input> Sink<'t, 'input> {
         }
 
         for kind in kinds.into_iter().rev() {
-            self.builder.start_node(RideMLLanguage::kind_to_raw(kind));
+            self.builder.start_node(CamlotLanguage::kind_to_raw(kind));
         }
     }
 
@@ -102,7 +102,7 @@ impl<'t, 'input> Sink<'t, 'input> {
     fn token(&mut self) {
         let Token { kind, text, .. } = self.tokens[self.cursor];
 
-        self.builder.token(RideMLLanguage::kind_to_raw(kind), text);
+        self.builder.token(CamlotLanguage::kind_to_raw(kind), text);
 
         self.cursor += 1;
     }
